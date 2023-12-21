@@ -1,0 +1,163 @@
+openapi: 3.0.3
+info:
+  title: API Книгарні
+  description: API для керування книгами та авторами
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+
+tags:
+  - name: Books
+    description: Операції з книгами
+
+paths:
+  /books:
+    get:
+      summary: Отримує список всіх книг.
+      description: >
+            Можна використовувати необов'язкові параметри запиту для фільтрації за назвою або автором.
+      tags:
+        - Books
+      parameters:
+        - name: title
+          description: Назва книги
+          in: query
+          type: string
+        - name: author
+          description: Ім'я автора
+          in: query
+          type: string
+      responses:
+        200:
+          description: Список книг
+          schema:
+            type: object
+            properties:
+              books:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: ID книги
+                    title:
+                      type: string
+                      description: Назва книги
+                    author:
+                      type: string
+                      description: Ім'я автора
+    post:
+      summary: Додає нову книгу до книгарні.
+      tags:
+        - Books
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: book
+          description: Дані про книгу
+          required: true
+          schema:
+                    type: object
+                    properties:
+                        title:
+                            type: string
+                            description: Назва книги
+                        author:
+                            type: integer
+                            description: ID автора
+      responses:
+        201:
+          description: Книга успішно додана
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: ID книги
+              title:
+                type: string
+                description: Назва книги
+              author:
+                type: string
+                description: Ім'я автора
+
+  /books/{id}:
+    get:
+      summary: Отримує конкретну книгу за її ID.
+      tags:
+        - Books
+      parameters:
+        - name: id
+          description: ID книги
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Інформація про книгу
+          schema:
+            type: object
+            properties:
+              book:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: ID книги
+                  title:
+                    type: string
+                    description: Назва книги
+                  author:
+                    type: string
+                    description: Ім'я автора
+    put:
+      summary: Оновлює інформацію книги з вказаним ID.
+      tags:
+        - Books
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          description: ID книги
+          required: true
+          type: integer
+        - in: body
+          name: book
+          description: Дані про книгу
+          required: true
+          schema:
+                    type: object
+                    properties:
+                        title:
+                            type: string
+                            description: Назва книги
+                        author:
+                            type: integer
+                            description: ID автора
+      responses:
+        200:
+          description: Інформація про оновлену книгу
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: ID книги
+              title:
+                type: string
+                description: Назва книги
+              author:
+                type: string
+                description: Ім'я автора
+    delete:
+      summary: Видаляє книгу з вказаним ID.
+      tags:
+        - Books
+      parameters:
+        - in: path
+          name: id
+          description: ID книги

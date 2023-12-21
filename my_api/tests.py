@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from .models import Author, Book
+from my_api.models import Author, Book
 import json
 
 
@@ -55,3 +55,54 @@ class MyApiTests(TestCase):
         self.assertEqual(response.status_code, 204)
         with self.assertRaises(Author.DoesNotExist):
             Author.objects.get(id=self.author1.id)
+
+    # E2E tests (new tests)
+    def test_get_books(self):
+        response = self.client.get(reverse('books'))
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('books', data)
+        self.assertIsInstance(data['books'], list)
+
+    def test_get_book_detail(self):
+        response = self.client.get(reverse('book_detail', args=[self.book1.id]))
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('book', data)
+        self.assertIsInstance(data['book'], dict)
+        self.assertIn('id', data['book'])
+        self.assertEqual(data['book']['id'], self.book1.id)
+
+    def test_create_book(self):
+        data = {
+            'title': 'New Book',
+            'author': self.author1.id,
+        }
+        response = self.client.post(
+            reverse('books'),
+            json.dumps(data),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        self.assertIn('id', data)
+        self.assertEqual(data['title'], 'New Book')
+
+    def test_update_book(self):
+        data = {
+            'title': 'Updated Book',
+        }
+        response = self.client.put(
+            reverse('book_detail', args=[self.book1.id]),
+            json.dumps(data),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['title'], 'Updated Book')
+
+    def test_delete_book(self):
+        response = self.client.delete(reverse('book_detail', args=[self.book1.id]))
+        self.assertEqual(response.status_code, 204)
+        with self.assertRaises(Book.DoesNotExist):
+            Book.objects.get(id=self.book1.id)
