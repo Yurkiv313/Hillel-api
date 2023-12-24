@@ -15,11 +15,53 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
-import my_api
+from my_api.views import AuthorViews, BooksViews
+
+authors = AuthorViews.as_view(
+    {
+        "get": "get_authors",
+        "post": "create_authors",
+    }
+)
+
+authors_details = AuthorViews.as_view(
+    {
+        "get": "author_detail_get",
+        "put": "update_author",
+        "delete": "delete_author",
+    }
+)
+
+books = BooksViews.as_view(
+    {
+        "get": "get_books",
+        "post": "create_book",
+    }
+)
+
+books_details = BooksViews.as_view(
+    {
+        "get": "book_detail_get",
+        "put": "update_book",
+        "delete": "delete_book",
+    }
+)
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('my_api.urls'))
+    path("admin/", admin.site.urls),
+    path("api/authors/", authors, name="authors"),
+    path("api/authors/<int:pk>/", authors_details, name="authors_details"),
+    path("api/books/", books, name="books"),
+    path("api/books/<int:pk>/", books_details, name="books_details"),
+    path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("swagger-ui/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
